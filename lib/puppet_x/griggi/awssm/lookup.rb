@@ -23,7 +23,7 @@ module PuppetX
             end
             Puppet.debug 'Cached value is stale, fetching new one'
           end
-          result = get_secret(id, version, region)
+          result = get_secret(id: id, version: version, region: region)
           to_cache = {
             data => result,
             date => Time.now
