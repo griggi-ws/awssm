@@ -27,8 +27,8 @@ module PuppetX
                               version: version,
                               region: region)
           to_cache = {
-            data => result,
-            date => Time.now
+            data: result,
+            date: Time.now
           }
           cache_hash[cache_key] = to_cache
           Puppet.debug 'New value stored in cache'
