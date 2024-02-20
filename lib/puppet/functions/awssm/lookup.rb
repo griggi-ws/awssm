@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../../../puppet_x/griggi/awssm'
+require_relative '../../../puppet_x/griggi/awssm/lookup'
 
 Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalFunction) do
   dispatch :lookup do
