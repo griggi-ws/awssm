@@ -23,7 +23,9 @@ module PuppetX
             end
             Puppet.debug 'Cached value is stale, fetching new one'
           end
-          result = get_secret(id: id, version: version, region: region)
+          result = get_secret(id: id,
+                              version: version,
+                              region: region)
           to_cache = {
             data => result,
             date => Time.now
@@ -33,7 +35,7 @@ module PuppetX
           result
         end
 
-        def self.get_secret(id:, version: nil, region:)
+        def self.get_secret(id:, version:, region:)
           secret = nil
           response = nil
           awssm = Aws::SecretsManager::Client.new({
