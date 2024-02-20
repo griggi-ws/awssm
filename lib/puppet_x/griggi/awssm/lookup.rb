@@ -17,7 +17,7 @@ module PuppetX
           cache_hash = cache.retrieve(self)
           cached_result = cache_hash[cache_key] unless ignore_cache
           if cached_result
-            if cached_result['date'] <=> Time.now < cache_stale * 60
+            if cached_result['date'] <=> Time.now < cache_stale.minutes
               Puppet.debug 'Returning cached value that is still fresh'
               return cached_result['data']
             end
