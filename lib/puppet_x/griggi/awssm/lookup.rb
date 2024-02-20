@@ -54,7 +54,7 @@ module PuppetX
           unless response.nil?
             response = response.to_h
             Puppet.debug "Response: #{response}"
-            secret = if response['secret_binary'].nil?
+            secret = if response['secret_string']
                        response['secret_string']
                      else
                        response['secret_binary']
