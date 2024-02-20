@@ -51,7 +51,7 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
              id,
              version = nil,
              region = 'us-east-2',
-             cache_stale = '30',
+             cache_stale = 30,
              ignore_cache = false)
 
     PuppetX::GRiggi::AWSSM::Lookup.lookup(cache: cache,
