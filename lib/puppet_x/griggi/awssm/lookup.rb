@@ -8,7 +8,7 @@ rescue LoadError
   raise Puppet::DataBinding::LookupError, '[awssm_lookup] Must install aws-sdk-secretsmanager gem to use awssm_lookup'
 end
 # First module for AWSSM, to lookup a given key (and optionally version)
-module GRiggi::AWSSM::Lookup
+module PuppetX::GRiggi::AWSSM::Lookup
   def self.lookup(cache:, id:, version: nil, region: 'us-east-2', cache_stale: 30, ignore_cache: false)
     cache_key = [id, version, region]
     cache_hash = cache.retrieve(self)
