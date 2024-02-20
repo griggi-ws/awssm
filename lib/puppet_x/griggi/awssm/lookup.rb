@@ -5,7 +5,7 @@ require 'puppet'
 begin
   require 'aws-sdk-secretsmanager'
 rescue LoadError
-  raise Puppet::DataBinding::LookupError, '[awssm_lookup] Must install aws-sdk-secretsmanager gem on both agent and server ruby versions to use awssm_lookup'
+  raise Puppet::DataBinding::LookupError, '[AWSSM]: Must install aws-sdk-secretsmanager gem on both agent and server ruby versions to use awssm_lookup'
 end
 # First module for AWSSM, to lookup a given key (and optionally version)
 module PuppetX
@@ -16,12 +16,14 @@ module PuppetX
           cache_key = [id, version, region]
           cache_hash = cache.retrieve(self)
           cached_result = cache_hash[cache_key] unless ignore_cache
+          cache_use = false
           if cached_result
             if (cached_result['date'] <=> Time.now - (cache_stale * 60)) == 1
-              Puppet.debug 'Returning cached value that is still fresh'
+              Puppet.debug '[AWSSM]: Returning cached value that is still fresh'
+              cache_use = true
               return cached_result['data']
             end
-            Puppet.debug 'Cached value is stale, fetching new one'
+            Puppet.debug '[AWSSM]: Cached value is stale, fetching new one'
           end
           result = get_secret(id: id,
                               version: version,
@@ -30,8 +32,10 @@ module PuppetX
             data: result,
             date: Time.now
           }
-          cache_hash[cache_key] = to_cache
-          Puppet.debug 'New value stored in cache'
+          if cache_use
+            cache_hash[cache_key] = to_cache
+            Puppet.debug '[AWSSM]: New value stored in cache'
+          end
           result
         end
 
@@ -47,19 +51,18 @@ module PuppetX
                                                 version_id: version
                                               })
           rescue Aws::SecretsManager::Errors::ResourceNotFoundException
-            raise Puppet::Error, "No matching key #{id} + version #{version} found."
+            raise Puppet::Error, "[AWSSM]: No matching key #{id} + version #{version} found."
           rescue Aws::SecretsManager::Errors::ServiceError => e
-            raise Puppet::Error, "Non-specific error when looking up #{id}: #{e.message}"
+            raise Puppet::Error, "[AWSSM]: Non-specific error when looking up #{id}: #{e.message}"
           end
           unless response.nil?
             response = response.to_h
-            Puppet.debug "Response: #{response}"
+            Puppet.debug '[AWSSM]: Response received.'
             secret = if response[:secret_string]
                        response[:secret_string]
                      else
                        response[:secret_binary]
                      end
-            Puppet.debug "Returning secret value: #{secret}"
           end
           Puppet::Pops::Types::PSensitiveType::Sensitive.new(secret)
         end
