@@ -17,9 +17,9 @@ module PuppetX
           cache_hash = cache.retrieve(self)
           cached_result = cache_hash[cache_key] unless ignore_cache
           if cached_result
-            if cached_result.date <=> Time.now < cache_stale * 60
+            if cached_result['date'] <=> Time.now < cache_stale * 60
               Puppet.debug 'Returning cached value that is still fresh'
-              return cached_result.data
+              return cached_result['data']
             end
             Puppet.debug 'Cached value is stale, fetching new one'
           end
@@ -31,7 +31,7 @@ module PuppetX
             date => Time.now
           }
           cache_hash[cache_key] = to_cache
-
+          Puppet.debug 'New value stored in cache'
           result
         end
 
@@ -53,10 +53,10 @@ module PuppetX
           end
           unless response.nil?
             response = response.to_h
-            secret = if response.secret_binary.nil?
-                       response.secret_string
+            secret = if response['secret_binary'].nil?
+                       response['secret_string']
                      else
-                       response.secret_binary
+                       response['secret_binary']
                      end
           end
           Puppet::Pops::Types::PSensitiveType::Sensitive.new(secret)
