@@ -53,16 +53,15 @@ module PuppetX
           end
           unless response.nil?
             response = response.to_h
+            Puppet.debug "Response: #{response}"
             secret = if response['secret_binary'].nil?
                        response['secret_string']
                      else
                        response['secret_binary']
                      end
             Puppet.debug "Returning secret value: #{secret}"
-            Puppet::Pops::Types::PSensitiveType::Sensitive.new(secret)
           end
-          Puppet.debug "Secret value is nil. Response: #{response.to_h}"
-          secret
+          Puppet::Pops::Types::PSensitiveType::Sensitive.new(secret)
         end
       end
     end
