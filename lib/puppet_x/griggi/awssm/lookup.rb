@@ -36,9 +36,9 @@ module PuppetX
         def self.get_secret(id:, version: nil, region:)
           secret = nil
           response = nil
-          awssm = Aws::Organizations::Client.new({
-                                                   region: region
-                                                 })
+          awssm = Aws::SecretsManager::Client.new({
+                                                    region: region
+                                                  })
           begin
             response = awssm.get_secret_value({
                                                 secret_id: id,
