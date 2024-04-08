@@ -7,17 +7,18 @@ begin
 rescue LoadError
   raise Puppet::DataBinding::LookupError, '[AWSSM]: Must install aws-sdk-secretsmanager gem on both agent and server ruby versions to use awssm_lookup'
 end
-# First module for AWSSM, to lookup a given key (and optionally version)
 module PuppetX
   module GRiggi
     module AWSSM
+      # First module for AWSSM, to lookup a given key (and optionally version)
       class Lookup
-        def self.lookup(cache:, id:, version: nil, region: 'us-east-2', cache_stale: 30, ignore_cache: false)
+        def self.lookup(cache:, id:, region: 'us-east-2', version: nil, cache_stale: 30, ignore_cache: false)
           cache_key = [id, version, region]
           cache_hash = cache.retrieve(self)
           cached_result = cache_hash[cache_key] unless ignore_cache
           cache_use = false
           if cached_result
+            # ! Not currently working as expected
             if (cached_result['date'] <=> Time.now - (cache_stale * 60)) == 1
               Puppet.debug '[AWSSM]: Returning cached value that is still fresh'
               cache_use = true

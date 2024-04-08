@@ -17,7 +17,7 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
   #
   # @example
   #  $foo = awssm::lookup('secret/some/path/foo',
-  #    {'region' => 'us-east-1', 'version' => 'AWSPREVIOUS'}
+  #    { 'version' => 'AWSPREVIOUS', 'region' => 'us-east-1' }
   #  )
   #
   dispatch :lookup_opts_hash do
@@ -29,6 +29,7 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
 
   # Lookup with a path and an options hash.
   def lookup_opts_hash(cache, id, options = { region => 'us-east-2',
+                                              version => 'AWSCURRENT',
                                               cache_stale => 30,
                                               ignore_cache => false })
     # NOTE: The order of these options MUST be the same as the lookup()
@@ -37,8 +38,8 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
     # here.
     PuppetX::GRiggi::AWSSM::Lookup.lookup(cache: cache,
                                           id: id,
-                                          version: options['version'],
                                           region: options['region'],
+                                          version: options['version'],
                                           cache_stale: options['cache_stale'],
                                           ignore_cache: options['ignore_cache'])
   end
@@ -49,15 +50,15 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
   # lookup_opts_hash().
   def lookup(cache,
              id,
-             version = nil,
              region = 'us-east-2',
+             version = nil,
              cache_stale = 30,
              ignore_cache = false)
 
     PuppetX::GRiggi::AWSSM::Lookup.lookup(cache: cache,
                                           id: id,
-                                          version: version,
                                           region: region,
+                                          version: version,
                                           cache_stale: cache_stale,
                                           ignore_cache: ignore_cache)
   end
