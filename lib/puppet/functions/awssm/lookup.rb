@@ -29,20 +29,20 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
   end
 
   # Lookup with a path and an options hash.
-  def lookup_opts_hash(cache, id, options = { region => 'us-east-2',
-                                              version => 'AWSCURRENT',
-                                              cache_stale => 30,
-                                              ignore_cache => false,
-                                              create_options => {
-                                                create_missing => true,
-                                                password_length => 32,
-                                                exclude_characters => '\'";\\{}',
-                                                exclude_numbers => false,
-                                                exclude_punctuation => false,
-                                                exclude_uppercase => false,
-                                                exclude_lowercase => false,
-                                                include_space => false,
-                                                require_each_included_type => true
+  def lookup_opts_hash(cache, id, options = { region: 'us-east-2',
+                                              version: 'AWSCURRENT',
+                                              cache_stale: 30,
+                                              ignore_cache: false,
+                                              create_options: {
+                                                create_missing: true,
+                                                password_length: 32,
+                                                exclude_characters: '\'";\\{}',
+                                                exclude_numbers: false,
+                                                exclude_punctuation: false,
+                                                exclude_uppercase: false,
+                                                exclude_lowercase: false,
+                                                include_space: false,
+                                                require_each_included_type: true
                                               }, })
     # NOTE: The order of these options MUST be the same as the lookup()
     # function's signature. If new parameters are added to lookup(), or if the
@@ -68,15 +68,15 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
              cache_stale = 30,
              ignore_cache = false,
              create_options = {
-               create_missing => true,
-               password_length => 32,
-               exclude_characters => '\'";\\{}',
-               exclude_numbers => false,
-               exclude_punctuation => false,
-               exclude_uppercase => false,
-               exclude_lowercase => false,
-               include_space => false,
-               require_each_included_type => true
+               create_missing: true,
+               password_length: 32,
+               exclude_characters: '\'";\\{}',
+               exclude_numbers: false,
+               exclude_punctuation: false,
+               exclude_uppercase: false,
+               exclude_lowercase: false,
+               include_space: false,
+               require_each_included_type: true
              })
 
     PuppetX::GRiggi::AWSSM::Lookup.lookup(cache: cache,
