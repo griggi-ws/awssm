@@ -78,6 +78,7 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
                include_space: false,
                require_each_included_type: true
              })
+    Puppet.info '[AWSSM]: Calling lookup function'
 
     PuppetX::GRiggi::AWSSM::Lookup.lookup(cache: cache,
                                           id: id,

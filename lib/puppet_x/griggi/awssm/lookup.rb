@@ -13,6 +13,7 @@ module PuppetX
       # First module for AWSSM, to lookup a given key (and optionally version)
       class Lookup
         def self.lookup(cache:, id:, region: 'us-east-2', version: nil, cache_stale: 30, ignore_cache: false, create_options: {})
+          Puppet.info '[AWSSM]: Lookup function started'
           cache_key = [id, version, region]
           cache_hash = cache.retrieve(self)
           cached_result = cache_hash[cache_key] unless ignore_cache
@@ -42,6 +43,7 @@ module PuppetX
         end
 
         def self.create_secret(id:, region:, options: {})
+          Puppet.info '[AWSSM]: create_secret function started'
           secret = nil
           response = nil
           awssm = Aws::SecretsManager::Client.new({
@@ -73,6 +75,7 @@ module PuppetX
         end
 
         def self.get_secret(id:, version:, region:, create_options:)
+          Puppet.info '[AWSSM]: get_secret function started'
           secret = nil
           response = nil
           awssm = Aws::SecretsManager::Client.new({
