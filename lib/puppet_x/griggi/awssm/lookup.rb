@@ -31,6 +31,7 @@ module PuppetX
                               version: version,
                               region: region,
                               create_options: create_options)
+          Puppet.debug '[AWSSM]: Sensitive secret returned.'
           to_cache = {
             data: result,
             date: Time.now
@@ -39,6 +40,7 @@ module PuppetX
             cache_hash[cache_key] = to_cache
             Puppet.debug '[AWSSM]: New value stored in cache'
           end
+          Puppet.debug '[AWSSM]: Returning value, end of lookup.'
           result
         end
 
@@ -101,6 +103,7 @@ module PuppetX
                        response[:secret_binary]
                      end
           end
+          Puppet.debug '[AWSSM]: Returning secret as sensitive.'
           Puppet::Pops::Types::PSensitiveType::Sensitive.new(secret)
         end
       end
