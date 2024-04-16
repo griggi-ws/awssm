@@ -10,6 +10,7 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
     optional_param 'Optional[String]', :region
     optional_param 'Optional[Number]', :cache_stale
     optional_param 'Optional[Boolean]', :ignore_cache
+    optional_param 'Optional[Hash]', :create_options
     return_type 'Sensitive'
   end
 
@@ -31,7 +32,18 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
   def lookup_opts_hash(cache, id, options = { region => 'us-east-2',
                                               version => 'AWSCURRENT',
                                               cache_stale => 30,
-                                              ignore_cache => false })
+                                              ignore_cache => false,
+                                              create_options => {
+                                                create_missing => true,
+                                                password_length => 32,
+                                                exclude_characters => '\'";\\{}',
+                                                exclude_numbers => false,
+                                                exclude_punctuation => false,
+                                                exclude_uppercase => false,
+                                                exclude_lowercase => false,
+                                                include_space => false,
+                                                require_each_included_type => true
+                                              }, })
     # NOTE: The order of these options MUST be the same as the lookup()
     # function's signature. If new parameters are added to lookup(), or if the
     # order of existing parameters change, those changes must also be made
@@ -41,7 +53,8 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
                                           region: options['region'],
                                           version: options['version'],
                                           cache_stale: options['cache_stale'],
-                                          ignore_cache: options['ignore_cache'])
+                                          ignore_cache: options['ignore_cache'],
+                                          create_options: options['create_options'])
   end
 
   # Lookup with a path and positional arguments.
@@ -53,13 +66,25 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
              region = 'us-east-2',
              version = nil,
              cache_stale = 30,
-             ignore_cache = false)
+             ignore_cache = false,
+             create_options = {
+               create_missing => true,
+               password_length => 32,
+               exclude_characters => '\'";\\{}',
+               exclude_numbers => false,
+               exclude_punctuation => false,
+               exclude_uppercase => false,
+               exclude_lowercase => false,
+               include_space => false,
+               require_each_included_type => true
+             })
 
     PuppetX::GRiggi::AWSSM::Lookup.lookup(cache: cache,
                                           id: id,
                                           region: region,
                                           version: version,
                                           cache_stale: cache_stale,
-                                          ignore_cache: ignore_cache)
+                                          ignore_cache: ignore_cache,
+                                          create_options: create_options)
   end
 end
