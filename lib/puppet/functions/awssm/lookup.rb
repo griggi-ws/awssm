@@ -28,7 +28,9 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
     return_type 'Sensitive'
   end
 
-  # Lookup with a path and an options hash.
+  # Lookup with a path and an options hash. The use of undef/nil in positional parameters with a deferred call appears to not work, so we need this.
+  # Be sure to also update the default values in the awssm::lookup function, as those will be used in the case that an options hash is passed without
+  # all values defined.
   def lookup_opts_hash(cache, id, options = { region: 'us-east-2',
                                               version: 'AWSCURRENT',
                                               cache_stale: 30,
