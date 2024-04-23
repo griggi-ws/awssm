@@ -73,7 +73,7 @@ module PuppetX
           if response.nil?
             raise Puppet::Error, '[AWSSM]: Invalid response when creating'
           end
-          secret
+          Puppet::Pops::Types::PSensitiveType::Sensitive.new(secret)
         end
 
         def self.get_secret(id:, version:, region:, create_options:)
