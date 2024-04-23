@@ -90,7 +90,7 @@ module PuppetX
                                                 version_id: version
                                               })
           rescue Aws::SecretsManager::Errors::ResourceNotFoundException
-            raise Puppet::Error, "[AWSSM]: No matching key #{id} + version #{version} found, and creating a missing secret is not enabled." unless create_options[:create_missing]
+            raise Puppet::Error, "[AWSSM]: No matching key #{id} + version #{version} found, and creating a missing secret is not enabled." unless create_options['create_missing']
             return create_secret(id, region, create_options)
           rescue Aws::SecretsManager::Errors::ServiceError => e
             raise Puppet::Error, "[AWSSM]: Non-specific error when looking up #{id}: #{e.message}"
