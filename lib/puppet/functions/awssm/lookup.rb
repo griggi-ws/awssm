@@ -80,6 +80,12 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
                include_space: false,
                require_each_included_type: true
              })
+
+    # Things we don't want to be `nil` if not passed in the initial call
+    region ||= 'us-east-2'
+    cache_stale ||= 30
+    ignore_cache ||= false
+
     Puppet.debug '[AWSSM]: Calling lookup function'
 
     PuppetX::GRiggi::AWSSM::Lookup.lookup(cache: cache,
