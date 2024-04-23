@@ -53,18 +53,18 @@ module PuppetX
                                                   })
           begin
             secret = awssm.get_random_password({
-                                                 password_length: options[:password_length] || 32,
-                                                 exclude_characters: options[:exclude_characters] || '\'";\\{}',
-                                                 exclude_numbers: options[:exclude_numbers] || false,
-                                                 exclude_punctuation: options[:exclude_punctuation] || false,
-                                                 exclude_uppercase: options[:exclude_uppercase] || false,
-                                                 exclude_lowercase: options[:exclude_lowercase] || false,
-                                                 include_space: options[:include_space] || false,
-                                                 require_each_included_type: options[:require_each_included_type] || true,
+                                                 password_length: options['password_length'] || 32,
+                                                 exclude_characters: options['exclude_characters'] || '\'";\\{}',
+                                                 exclude_numbers: options['exclude_numbers'] || false,
+                                                 exclude_punctuation: options['exclude_punctuation'] || false,
+                                                 exclude_uppercase: options['exclude_uppercase'] || false,
+                                                 exclude_lowercase: options['exclude_lowercase'] || false,
+                                                 include_space: options['include_space'] || false,
+                                                 require_each_included_type: options['require_each_included_type'] || true,
                                                }).random_password
             response = awssm.create_secret({
-                                             description: options[:description] || 'Created by Puppet',
-                                             name:        options[:name] || id,
+                                             description: options['description'] || 'Created by Puppet',
+                                             name:        options['name'] || id,
                                              secret_string: secret,
                                            })
           rescue Aws::SecretsManager::Errors::ServiceError => e
