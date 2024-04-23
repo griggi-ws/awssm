@@ -54,7 +54,7 @@ module PuppetX
           begin
             secret = awssm.get_random_password({
                                                  password_length: options['password_length'] || 32,
-                                                 exclude_characters: options['exclude_characters'] || '\'";\\{}',
+                                                 exclude_characters: options['exclude_characters'] || '\'";\\{}@',
                                                  exclude_numbers: options['exclude_numbers'] || false,
                                                  exclude_punctuation: options['exclude_punctuation'] || false,
                                                  exclude_uppercase: options['exclude_uppercase'] || false,

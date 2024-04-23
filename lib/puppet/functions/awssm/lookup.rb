@@ -38,7 +38,7 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
                                               'create_options' => {
                                                 'create_missing' => true,
                                                 'password_length' => 32,
-                                                'exclude_characters' => '\'";\\{}',
+                                                'exclude_characters' => '\'";\\{}@',
                                                 'exclude_numbers' => false,
                                                 'exclude_punctuation' => false,
                                                 'exclude_uppercase' => false,
@@ -77,7 +77,7 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
              create_options = {
                'create_missing' => true,
                'password_length' => 32,
-               'exclude_characters' => '\'";\\{}',
+               'exclude_characters' => '\'";\\{}@',
                'exclude_numbers' => false,
                'exclude_punctuation' => false,
                'exclude_uppercase' => false,
