@@ -78,6 +78,7 @@ module PuppetX
 
         def self.get_secret(id:, version:, region:, create_options:)
           Puppet.debug '[AWSSM]: get_secret function started'
+          Puppet.debug "Called with: id: #{id} version: #{version} region: #{region} create_options: #{create_options}"
           secret = nil
           response = nil
           awssm = Aws::SecretsManager::Client.new({
