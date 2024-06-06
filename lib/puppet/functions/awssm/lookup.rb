@@ -4,9 +4,6 @@ require_relative '../../../puppet_x/griggi/awssm/lookup'
 
 Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalFunction) do
 
-  scope = closure_scope
-  region_lookup = [scope['trusted']['extensions']['pp_region'], scope['facts']['region'], call_function(lookup, 'region'), 'us-east-2'].compact.first
-
   dispatch :lookup do
     cache_param # Completely undocumented feature that I can only find implemented in a single official Puppet module? Sure why not let's try it
     param 'String', :id
@@ -35,7 +32,7 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
   # Lookup with a path and an options hash. The use of undef/nil in positional parameters with a deferred call appears to not work, so we need this.
   # Be sure to also update the default values in the awssm::lookup function, as those will be used in the case that an options hash is passed without
   # all values defined.
-  def lookup_opts_hash(cache, id, options = { 'region' => region_lookup,
+  def lookup_opts_hash(cache, id, options = { 'region' => nil,
                                               'version' => 'AWSCURRENT',
                                               'cache_stale' => 30,
                                               'ignore_cache' => false,
@@ -50,6 +47,10 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
                                                 'include_space' => false,
                                                 'require_each_included_type' => true
                                               }, })
+
+                                              
+    scope = closure_scope
+    region_lookup = [scope['trusted']['extensions']['pp_region'], scope['facts']['region'], call_function(lookup, 'region'), 'us-east-2'].compact.first
 
     # Things we don't want to be `nil` if not passed in the initial call
     options['region'] ||= region_lookup
@@ -74,7 +75,7 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
   # lookup_opts_hash().
   def lookup(cache,
              id,
-             region = region_lookup,
+             region = nil,
              version = nil,
              cache_stale = 30,
              ignore_cache = false,
@@ -90,6 +91,9 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
                'require_each_included_type' => true
              })
 
+    scope = closure_scope
+    region_lookup = [scope['trusted']['extensions']['pp_region'], scope['facts']['region'], call_function(lookup, 'region'), 'us-east-2'].compact.first
+    region ||= region_lookup
     Puppet.debug '[AWSSM]: Calling lookup function'
 
     PuppetX::GRiggi::AWSSM::Lookup.lookup(cache: cache,
