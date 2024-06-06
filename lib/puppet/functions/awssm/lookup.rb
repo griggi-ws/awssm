@@ -4,6 +4,7 @@ require_relative '../../../puppet_x/griggi/awssm/lookup'
 
 Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalFunction) do
 
+  scope = closure_scope
   region_lookup = [scope['trusted']['extensions']['pp_region'], scope['facts']['region'], call_function(lookup, 'region'), 'us-east-2'].compact.first
 
   dispatch :lookup do
