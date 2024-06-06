@@ -3,6 +3,9 @@
 require_relative '../../../puppet_x/griggi/awssm/lookup'
 
 Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalFunction) do
+
+  region_lookup = [scope['trusted']['extensions']['pp_region'], scope['facts']['region'], call_function(lookup, 'region'), 'us-east-2'].compact.first
+
   dispatch :lookup do
     cache_param # Completely undocumented feature that I can only find implemented in a single official Puppet module? Sure why not let's try it
     param 'String', :id
@@ -31,7 +34,7 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
   # Lookup with a path and an options hash. The use of undef/nil in positional parameters with a deferred call appears to not work, so we need this.
   # Be sure to also update the default values in the awssm::lookup function, as those will be used in the case that an options hash is passed without
   # all values defined.
-  def lookup_opts_hash(cache, id, options = { 'region' => 'us-east-2',
+  def lookup_opts_hash(cache, id, options = { 'region' => region_lookup,
                                               'version' => 'AWSCURRENT',
                                               'cache_stale' => 30,
                                               'ignore_cache' => false,
@@ -48,7 +51,7 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
                                               }, })
 
     # Things we don't want to be `nil` if not passed in the initial call
-    options['region'] ||= 'us-east-2'
+    options['region'] ||= region_lookup
     options['cache_stale'] ||= 30
     options['ignore_cache'] ||= false
     # NOTE: The order of these options MUST be the same as the lookup()
@@ -70,7 +73,7 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
   # lookup_opts_hash().
   def lookup(cache,
              id,
-             region = 'us-east-2',
+             region = region_lookup,
              version = nil,
              cache_stale = 30,
              ignore_cache = false,
