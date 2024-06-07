@@ -49,7 +49,7 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
                                               }, })
 
                               
-    region_lookup = [closure_scope['trusted']['extensions']['pp_region'], closure_scope['facts']['region'], call_function('lookup', 'region', 'us-east-2')].compact.first
+    region_lookup = [closure_scope['trusted']['extensions']['pp_region'], closure_scope['facts']['region'], call_function('lookup', 'region', nil, nil, 'us-east-2')].compact.first
 
     # Things we don't want to be `nil` if not passed in the initial call
     options['region'] ||= region_lookup
@@ -92,7 +92,7 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
                'require_each_included_type' => true
              })
 
-    region_lookup = [closure_scope['trusted']['extensions']['pp_region'], closure_scope['facts']['region'], call_function('lookup', 'region', 'us-east-2')].compact.first
+    region_lookup = [closure_scope['trusted']['extensions']['pp_region'], closure_scope['facts']['region'], call_function('lookup', 'region', nil, nil, 'us-east-2')].compact.first
     region ||= region_lookup
     Puppet.debug "[AWSSM]: Calling lookup function in region #{region}"
 
