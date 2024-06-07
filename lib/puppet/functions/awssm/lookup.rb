@@ -1,8 +1,14 @@
 # frozen_string_literal: true
 
 require_relative '../../../puppet_x/griggi/awssm/lookup'
+begin
+  require 'aws-sdk-core'
+rescue LoadError
+  raise Puppet::DataBinding::LookupError, '[AWSSM]: Must install aws-sdk-secretsmanager gem on both agent and server ruby versions to use awssm_lookup'
+end
 
 Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalFunction) do
+
   dispatch :lookup do
     cache_param # Completely undocumented feature that I can only find implemented in a single official Puppet module? Sure why not let's try it
     param 'String', :id
@@ -31,7 +37,7 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
   # Lookup with a path and an options hash. The use of undef/nil in positional parameters with a deferred call appears to not work, so we need this.
   # Be sure to also update the default values in the awssm::lookup function, as those will be used in the case that an options hash is passed without
   # all values defined.
-  def lookup_opts_hash(cache, id, options = { 'region' => 'us-east-2',
+  def lookup_opts_hash(cache, id, options = { 'region' => nil,
                                               'version' => 'AWSCURRENT',
                                               'cache_stale' => 30,
                                               'ignore_cache' => false,
@@ -47,14 +53,27 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
                                                 'require_each_included_type' => true
                                               }, })
 
+    region_lookup = [closure_scope['trusted']['extensions']['pp_region'], closure_scope['facts']['region'], call_function('lookup', 'region', nil, nil, 'us-east-2')]
+    begin
+      ec2_metadata = Aws::EC2Metadata.new
+      host_region = ec2_metadata.get('/latest/meta-data/placement/region')
+      region_lookup.unshift(host_region)
+      Puppet.debug "[AWSSM]: EC2 metadata lookup successful, host region #{host_region}"
+      Puppet.debug "[AWSSM]: region_lookup new value: #{region_lookup}"
+    rescue => e
+      Puppet.debug "[AWSSM]: EC2 metadata inaccessible, error #{e}"
+    end
+
     # Things we don't want to be `nil` if not passed in the initial call
-    options['region'] ||= 'us-east-2'
+    options['region'] ||= region_lookup.compact.first
     options['cache_stale'] ||= 30
     options['ignore_cache'] ||= false
     # NOTE: The order of these options MUST be the same as the lookup()
     # function's signature. If new parameters are added to lookup(), or if the
     # order of existing parameters change, those changes must also be made
     # here.
+    
+    Puppet.debug "[AWSSM]: Calling lookup function in region #{region}"
     PuppetX::GRiggi::AWSSM::Lookup.lookup(cache: cache,
                                           id: id,
                                           region: options['region'],
@@ -70,7 +89,7 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
   # lookup_opts_hash().
   def lookup(cache,
              id,
-             region = 'us-east-2',
+             region = nil,
              version = nil,
              cache_stale = 30,
              ignore_cache = false,
@@ -86,7 +105,19 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
                'require_each_included_type' => true
              })
 
-    Puppet.debug '[AWSSM]: Calling lookup function'
+    region_lookup = [closure_scope['trusted']['extensions']['pp_region'], closure_scope['facts']['region'], call_function('lookup', 'region', nil, nil, 'us-east-2')]
+    begin
+      ec2_metadata = Aws::EC2Metadata.new
+      host_region = ec2_metadata.get('/latest/meta-data/placement/region')
+      region_lookup.unshift(host_region)
+      Puppet.debug "[AWSSM]: EC2 metadata lookup successful, host region #{host_region}"
+      Puppet.debug "[AWSSM]: region_lookup new value: #{region_lookup}"
+    rescue => e
+      Puppet.debug "[AWSSM]: EC2 metadata inaccessible, error #{e}"
+    end
+
+    region ||= region_lookup.compact.first
+    Puppet.debug "[AWSSM]: Calling lookup function in region #{region}"
 
     PuppetX::GRiggi::AWSSM::Lookup.lookup(cache: cache,
                                           id: id,
