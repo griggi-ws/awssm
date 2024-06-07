@@ -3,6 +3,7 @@
 # Taking out of puppet's Vault book
 require 'puppet'
 begin
+  require 'aws-sdk-core'
   require 'aws-sdk-secretsmanager'
 rescue LoadError
   raise Puppet::DataBinding::LookupError, '[AWSSM]: Must install aws-sdk-secretsmanager gem on both agent and server ruby versions to use awssm_lookup'
@@ -40,7 +41,7 @@ module PuppetX
             cache_hash[cache_key] = to_cache
             Puppet.debug '[AWSSM]: New value stored in cache'
           end
-          Puppet.info "[AWSSM]: Successfully looked up value of #{id}"
+          Puppet.info "[AWSSM]: Successfully looked up value of #{id} in region #{region}"
           result
         end
 

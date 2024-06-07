@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
 require_relative '../../../puppet_x/griggi/awssm/lookup'
+begin
+  require 'aws-sdk-core'
+rescue LoadError
+  raise Puppet::DataBinding::LookupError, '[AWSSM]: Must install aws-sdk-secretsmanager gem on both agent and server ruby versions to use awssm_lookup'
+end
 
 Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalFunction) do
 
@@ -55,6 +60,7 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
     rescue
       Puppet.debug "[AWSSM]: EC2 metadata inaccessible"
     end
+
     # Things we don't want to be `nil` if not passed in the initial call
     options['region'] ||= region_lookup
     options['cache_stale'] ||= 30
