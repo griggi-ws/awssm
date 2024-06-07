@@ -60,8 +60,8 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
       region_lookup.unshift(host_region)
       Puppet.info "[AWSSM]: EC2 metadata lookup successful, host region #{host_region}"
       Puppet.info "[AWSSM]: region_lookup new value: #{region_lookup}"
-    rescue
-      Puppet.info "[AWSSM]: EC2 metadata inaccessible"
+    rescue => e
+      Puppet.info "[AWSSM]: EC2 metadata inaccessible, error #{e}"
     end
 
     # Things we don't want to be `nil` if not passed in the initial call
@@ -112,8 +112,8 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
       region_lookup.unshift(host_region)
       Puppet.info "[AWSSM]: EC2 metadata lookup successful, host region #{host_region}"
       Puppet.info "[AWSSM]: region_lookup new value: #{region_lookup}"
-    rescue
-      Puppet.info "[AWSSM]: EC2 metadata inaccessible"
+    rescue => e
+      Puppet.info "[AWSSM]: EC2 metadata inaccessible, error #{e}"
     end
 
     region ||= region_lookup.compact.first
