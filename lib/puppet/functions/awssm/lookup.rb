@@ -48,9 +48,13 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
                                                 'require_each_included_type' => true
                                               }, })
 
-                              
     region_lookup = [closure_scope['trusted']['extensions']['pp_region'], closure_scope['facts']['region'], call_function('lookup', 'region', nil, nil, 'us-east-2')].compact.first
-
+    begin
+      ec2_metadata = Aws::EC2Metadata.new
+      region_lookup.unshift(ec2_metadata.get('/latest/meta-data/placement/region'))
+    rescue
+      Puppet.debug "[AWSSM]: EC2 metadata inaccessible"
+    end
     # Things we don't want to be `nil` if not passed in the initial call
     options['region'] ||= region_lookup
     options['cache_stale'] ||= 30
@@ -93,6 +97,12 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
              })
 
     region_lookup = [closure_scope['trusted']['extensions']['pp_region'], closure_scope['facts']['region'], call_function('lookup', 'region', nil, nil, 'us-east-2')].compact.first
+    begin
+      ec2_metadata = Aws::EC2Metadata.new
+      region_lookup.unshift(ec2_metadata.get('/latest/meta-data/placement/region'))
+    rescue
+      Puppet.debug "[AWSSM]: EC2 metadata inaccessible"
+    end
     region ||= region_lookup
     Puppet.debug "[AWSSM]: Calling lookup function in region #{region}"
 
