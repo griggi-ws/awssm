@@ -73,7 +73,7 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
     # order of existing parameters change, those changes must also be made
     # here.
     
-    Puppet.debug "[AWSSM]: Calling lookup function in region #{region}"
+    Puppet.debug "[AWSSM]: Calling lookup function in region #{options['region']}"
     PuppetX::GRiggi::AWSSM::Lookup.lookup(cache: cache,
                                           id: id,
                                           region: options['region'],
