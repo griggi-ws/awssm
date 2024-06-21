@@ -53,16 +53,17 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
                                                 'require_each_included_type' => true
                                               }, })
 
-    Puppet.debug "[AWSSM]: Looking up region to use"
-    trusted = closure_scope['trusted']
-    Puppet.info "[AWSSM]: 'trusted' scope value is #{trusted}"
-    extensions = trusted&.fetch('extensions', nil)
-    Puppet.info "[AWSSM]: 'extensions' scope value is #{extensions}"
-    pp_region = extensions&.fetch('pp_region', nil)
-    Puppet.info "[AWSSM]: 'extensions' scope value is #{pp_region}"
 
-    region_lookup = [closure_scope['trusted']&.fetch('extensions', nil)&.fetch('pp_region', nil), closure_scope['facts']&.fetch('region', nil), call_function('lookup', 'region', nil, nil, 'us-east-2')]
+    Puppet.debug "[AWSSM]: Looking up region to use"
+    region_lookup = [closure_scope['trusted']&.fetch('extensions', nil)&.fetch('pp_region', nil), closure_scope['facts']&.fetch('region', nil)]
     begin
+      hiera = call_function('lookup', 'region', nil, nil, 'us-east-2')
+      region_lookup.push(hiera)
+    rescue => e
+      Puppet.debug "[AWSSM]: Puppet `lookup` function inaccessible, error #{e}"
+    end
+    begin
+      Puppet.debug "[AWSSM]: start EC2 metadata lookup"
       ec2_metadata = Aws::EC2Metadata.new
       host_region = ec2_metadata.get('/latest/meta-data/placement/region')
       region_lookup.unshift(host_region)
@@ -71,6 +72,8 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
     rescue => e
       Puppet.debug "[AWSSM]: EC2 metadata inaccessible, error #{e}"
     end
+
+    Puppet.debug "[AWSSM]: region_lookup value is #{region_lookup.to_s}"
 
     # Things we don't want to be `nil` if not passed in the initial call
     options['region'] ||= region_lookup.compact.first
@@ -122,7 +125,7 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
       Puppet.debug "[AWSSM]: Puppet `lookup` function inaccessible, error #{e}"
     end
     begin
-      Puppet.info "[AWSSM]: start EC2 metadata lookup"
+      Puppet.debug "[AWSSM]: start EC2 metadata lookup"
       ec2_metadata = Aws::EC2Metadata.new
       host_region = ec2_metadata.get('/latest/meta-data/placement/region')
       region_lookup.unshift(host_region)
@@ -132,7 +135,7 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
       Puppet.debug "[AWSSM]: EC2 metadata inaccessible, error #{e}"
     end
 
-    Puppet.info "[AWSSM]: region_lookup value is #{region_lookup.to_s}"
+    Puppet.debug "[AWSSM]: region_lookup value is #{region_lookup.to_s}"
     region ||= region_lookup.compact.first
     Puppet.debug "[AWSSM]: Calling lookup function in region #{region}"
 
