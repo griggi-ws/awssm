@@ -119,10 +119,17 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
     extensions = trusted&.fetch('extensions', nil)
     Puppet.info "[AWSSM]: 'extensions' scope value is #{extensions}"
     pp_region = extensions&.fetch('pp_region', nil)
-    Puppet.info "[AWSSM]: 'extensions' scope value is #{pp_region}"
+    Puppet.info "[AWSSM]: 'pp_region' scope value is #{pp_region}"
+    facts = closure_scope['facts']
+    Puppet.info "[AWSSM]: 'facts' scope value is #{facts}"
+    factsregion = facts&.fetch('region', nil)
+    Puppet.info "[AWSSM]: 'region' scope value is #{factsregion}"
+    lookup = call_function('lookup', 'region', nil, nil, 'us-east-2')
+    Puppet.info "[AWSSM]: 'region' hiera value is #{lookup}"
 
     region_lookup = [closure_scope['trusted']&.fetch('extensions', nil)&.fetch('pp_region', nil), closure_scope['facts']&.fetch('region', nil), call_function('lookup', 'region', nil, nil, 'us-east-2')]
     begin
+      Puppet.debug "[AWSSM]: start EC2 metadata lookup"
       ec2_metadata = Aws::EC2Metadata.new
       host_region = ec2_metadata.get('/latest/meta-data/placement/region')
       region_lookup.unshift(host_region)
