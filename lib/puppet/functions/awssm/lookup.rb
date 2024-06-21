@@ -113,25 +113,11 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
                'require_each_included_type' => true
              })
 
-    region_lookup = []
     Puppet.debug "[AWSSM]: Looking up region to use"
-    trusted = closure_scope['trusted']
-    Puppet.info "[AWSSM]: 'trusted' scope value is #{trusted.to_s}"
-    extensions = trusted&.fetch('extensions', nil)
-    Puppet.info "[AWSSM]: 'extensions' scope value is #{extensions.to_s}"
-    pp_region = extensions&.fetch('pp_region', nil)
-    Puppet.info "[AWSSM]: 'pp_region' scope value is #{pp_region.to_s}"
-    facts = closure_scope['facts']
-    Puppet.info "[AWSSM]: 'facts' scope value is #{facts.to_s}"
-    factsregion = facts&.fetch('region', nil)
-    Puppet.info "[AWSSM]: 'region' scope value is #{factsregion.to_s}"
-    Puppet.info "[AWSSM]: 'region' hiera value is #{lookup.to_s}"
-    Puppet.info "[AWSSM]: region_lookup value is #{region_lookup.to_s}"
-
     region_lookup = [closure_scope['trusted']&.fetch('extensions', nil)&.fetch('pp_region', nil), closure_scope['facts']&.fetch('region', nil)]
     begin
-      lookup = call_function('lookup', 'region', nil, nil, 'us-east-2')
-      region_lookup.push(lookup)
+      hiera = call_function('lookup', 'region', nil, nil, 'us-east-2')
+      region_lookup.push(hiera)
     rescue => e
       Puppet.debug "[AWSSM]: Puppet `lookup` function inaccessible, error #{e}"
     end
