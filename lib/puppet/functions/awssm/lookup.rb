@@ -53,6 +53,7 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
                                                 'require_each_included_type' => true
                                               }, })
 
+    Puppet.debug "[AWSSM]: Looking up region to use"
     region_lookup = [closure_scope['trusted']['extensions']['pp_region'], closure_scope['facts']['region'], call_function('lookup', 'region', nil, nil, 'us-east-2')]
     begin
       ec2_metadata = Aws::EC2Metadata.new
@@ -105,6 +106,7 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
                'require_each_included_type' => true
              })
 
+    Puppet.debug "[AWSSM]: Looking up region to use"
     region_lookup = [closure_scope['trusted']['extensions']['pp_region'], closure_scope['facts']['region'], call_function('lookup', 'region', nil, nil, 'us-east-2')]
     begin
       ec2_metadata = Aws::EC2Metadata.new
