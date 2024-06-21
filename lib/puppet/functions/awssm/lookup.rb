@@ -134,6 +134,7 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
       region_lookup.push(lookup)
     rescue => e
       Puppet.debug "[AWSSM]: Puppet `lookup` function inaccessible, error #{e}"
+    end
     begin
       Puppet.info "[AWSSM]: start EC2 metadata lookup"
       ec2_metadata = Aws::EC2Metadata.new
