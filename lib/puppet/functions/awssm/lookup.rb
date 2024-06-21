@@ -120,18 +120,20 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
     extensions = trusted&.fetch('extensions', nil)
     Puppet.info "[AWSSM]: 'extensions' scope value is #{extensions.to_s}"
     pp_region = extensions&.fetch('pp_region', nil)
-    region_lookup.push(pp_region)
     Puppet.info "[AWSSM]: 'pp_region' scope value is #{pp_region.to_s}"
     facts = closure_scope['facts']
     Puppet.info "[AWSSM]: 'facts' scope value is #{facts.to_s}"
     factsregion = facts&.fetch('region', nil)
     Puppet.info "[AWSSM]: 'region' scope value is #{factsregion.to_s}"
-    lookup = call_function('lookup', 'region', nil, nil, 'us-east-2')
-    region_lookup.push(lookup)
     Puppet.info "[AWSSM]: 'region' hiera value is #{lookup.to_s}"
     Puppet.info "[AWSSM]: region_lookup value is #{region_lookup.to_s}"
 
-    #region_lookup = [closure_scope['trusted']&.fetch('extensions', nil)&.fetch('pp_region', nil), closure_scope['facts']&.fetch('region', nil), call_function('lookup', 'region', nil, nil, 'us-east-2')]
+    region_lookup = [closure_scope['trusted']&.fetch('extensions', nil)&.fetch('pp_region', nil), closure_scope['facts']&.fetch('region', nil)]
+    begin
+      lookup = call_function('lookup', 'region', nil, nil, 'us-east-2')
+      region_lookup.push(lookup)
+    rescue => e
+      Puppet.debug "[AWSSM]: Puppet `lookup` function inaccessible, error #{e}"
     begin
       Puppet.info "[AWSSM]: start EC2 metadata lookup"
       ec2_metadata = Aws::EC2Metadata.new
