@@ -114,6 +114,13 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
              })
 
     Puppet.debug "[AWSSM]: Looking up region to use"
+    trusted = closure_scope['trusted']
+    Puppet.info "[AWSSM]: 'trusted' scope value is #{trusted}"
+    extensions = trusted&.fetch('extensions', nil)
+    Puppet.info "[AWSSM]: 'extensions' scope value is #{extensions}"
+    pp_region = extensions&.fetch('pp_region', nil)
+    Puppet.info "[AWSSM]: 'extensions' scope value is #{pp_region}"
+
     region_lookup = [closure_scope['trusted']&.fetch('extensions', nil)&.fetch('pp_region', nil), closure_scope['facts']&.fetch('region', nil), call_function('lookup', 'region', nil, nil, 'us-east-2')]
     begin
       ec2_metadata = Aws::EC2Metadata.new
