@@ -115,6 +115,7 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
 
     region_lookup = []
     Puppet.debug "[AWSSM]: Looking up region to use"
+    trusted = closure_scope['trusted']
     Puppet.info "[AWSSM]: 'trusted' scope value is #{trusted}"
     extensions = trusted&.fetch('extensions', nil)
     Puppet.info "[AWSSM]: 'extensions' scope value is #{extensions}"
