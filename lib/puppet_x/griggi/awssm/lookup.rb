@@ -41,7 +41,7 @@ module PuppetX
             cache_hash[cache_key] = to_cache
             Puppet.debug '[AWSSM]: New value stored in cache'
           end
-          Puppet.info "[AWSSM]: Successfully looked up value of #{id} in region #{region}"
+          Puppet.info "[AWSSM]: Successfully looked up value of #{id} in region #{region} (cache hit: #{cache_use})"
           result
         end
 
