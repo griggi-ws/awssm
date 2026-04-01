@@ -13,34 +13,24 @@ module PuppetX
     module AWSSM
       # First module for AWSSM, to lookup a given key (and optionally version)
       class Lookup
-        def self.lookup(cache:, id:, region: 'us-east-2', version: nil, cache_stale: 30, ignore_cache: false, create_options: {})
+        def self.lookup(cache:, id:, region: 'us-east-2', version: nil, ignore_cache: false, create_options: {})
           Puppet.debug '[AWSSM]: Lookup function started'
           cache_key = [id, version, region]
           cache_hash = cache.retrieve(self)
           cached_result = cache_hash[cache_key] unless ignore_cache
-          cache_use = false
           if cached_result
-            if (cached_result[:date] <=> Time.now - (cache_stale * 60)) == 1
-              Puppet.debug '[AWSSM]: Returning cached value that is still fresh'
-              cache_use = true
-              return cached_result[:data]
-            end
-            Puppet.debug '[AWSSM]: Cached value is stale, fetching new one'
+            Puppet.debug '[AWSSM]: Returning cached value'
+            Puppet.info "[AWSSM]: Successfully looked up value of #{id} in region #{region} (cache hit: true)"
+            return cached_result
           end
           result = get_secret(id: id,
                               version: version,
                               region: region,
                               create_options: create_options)
           Puppet.debug '[AWSSM]: Sensitive secret returned.'
-          to_cache = {
-            data: result,
-            date: Time.now
-          }
-          unless cache_use
-            cache_hash[cache_key] = to_cache
-            Puppet.debug '[AWSSM]: New value stored in cache'
-          end
-          Puppet.info "[AWSSM]: Successfully looked up value of #{id} in region #{region} (cache hit: #{cache_use})"
+          cache_hash[cache_key] = result
+          Puppet.debug '[AWSSM]: Value stored in cache'
+          Puppet.info "[AWSSM]: Successfully looked up value of #{id} in region #{region} (cache hit: false)"
           result
         end
 
