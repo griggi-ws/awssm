@@ -20,11 +20,10 @@ module PuppetX
           cached_result = cache_hash[cache_key] unless ignore_cache
           cache_use = false
           if cached_result
-            # ! Not currently working as expected
-            if (cached_result['date'] <=> Time.now - (cache_stale * 60)) == 1
+            if (cached_result[:date] <=> Time.now - (cache_stale * 60)) == 1
               Puppet.debug '[AWSSM]: Returning cached value that is still fresh'
               cache_use = true
-              return cached_result['data']
+              return cached_result[:data]
             end
             Puppet.debug '[AWSSM]: Cached value is stale, fetching new one'
           end
@@ -37,7 +36,7 @@ module PuppetX
             data: result,
             date: Time.now
           }
-          if cache_use
+          unless cache_use
             cache_hash[cache_key] = to_cache
             Puppet.debug '[AWSSM]: New value stored in cache'
           end
