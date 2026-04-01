@@ -14,7 +14,6 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
     param 'String', :id
     optional_param 'String', :version
     optional_param 'Optional[String]', :region
-    optional_param 'Optional[Number]', :cache_stale
     optional_param 'Optional[Boolean]', :ignore_cache
     optional_param 'Optional[Hash]', :create_options
     return_type 'Sensitive'
@@ -39,7 +38,6 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
   # all values defined.
   def lookup_opts_hash(cache, id, options = { 'region' => nil,
                                               'version' => 'AWSCURRENT',
-                                              'cache_stale' => 30,
                                               'ignore_cache' => false,
                                               'create_options' => {
                                                 'create_missing' => true,
@@ -77,7 +75,6 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
 
     # Things we don't want to be `nil` if not passed in the initial call
     options['region'] ||= region_lookup.compact.first
-    options['cache_stale'] ||= 30
     options['ignore_cache'] ||= false
     # NOTE: The order of these options MUST be the same as the lookup()
     # function's signature. If new parameters are added to lookup(), or if the
@@ -89,7 +86,6 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
                                           id: id,
                                           region: options['region'],
                                           version: options['version'],
-                                          cache_stale: options['cache_stale'],
                                           ignore_cache: options['ignore_cache'],
                                           create_options: options['create_options'])
   end
@@ -102,7 +98,6 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
              id,
              region = nil,
              version = nil,
-             cache_stale = 30,
              ignore_cache = false,
              create_options = {
                'create_missing' => true,
@@ -143,7 +138,6 @@ Puppet::Functions.create_function(:'awssm::lookup', Puppet::Functions::InternalF
                                           id: id,
                                           region: region,
                                           version: version,
-                                          cache_stale: cache_stale,
                                           ignore_cache: ignore_cache,
                                           create_options: create_options)
   end
