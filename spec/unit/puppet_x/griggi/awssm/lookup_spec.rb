@@ -216,7 +216,7 @@ describe PuppetX::GRiggi::AWSSM::Lookup do
               id: secret_id,
               version: nil,
               region: region,
-              create_options: {}
+              create_options: { 'create_missing' => false }
             )
           end.to raise_error(Puppet::Error, /No matching key.*and creating a missing secret is not enabled/)
         end
@@ -363,6 +363,49 @@ describe PuppetX::GRiggi::AWSSM::Lookup do
           )
         end.to raise_error(Puppet::Error, /Invalid response when creating/)
       end
+    end
+  end
+
+  describe '.merge_create_options' do
+    it 'returns the defaults when given nil' do
+      expect(described_class.merge_create_options(nil)).to eq(described_class::DEFAULT_CREATE_OPTIONS)
+    end
+
+    it 'keeps defaults for keys missing from a partial hash' do
+      merged = described_class.merge_create_options('exclude_punctuation' => true)
+      expect(merged['exclude_punctuation']).to be(true)
+      expect(merged['create_missing']).to be(true)
+      expect(merged['password_length']).to eq(32)
+    end
+
+    it 'falls back to the default for nil values' do
+      expect(described_class.merge_create_options('password_length' => nil)['password_length']).to eq(32)
+    end
+
+    it 'respects explicit false values' do
+      merged = described_class.merge_create_options('create_missing' => false, 'require_each_included_type' => false)
+      expect(merged['create_missing']).to be(false)
+      expect(merged['require_each_included_type']).to be(false)
+    end
+  end
+
+  describe '.lookup with a partial create_options hash' do
+    it 'creates a missing secret, since create_missing defaults to true' do
+      allow(awssm_client).to receive(:get_secret_value)
+        .and_raise(Aws::SecretsManager::Errors::ResourceNotFoundException.new('context', 'message'))
+      expect(awssm_client).to receive(:get_random_password)
+        .with(hash_including(exclude_punctuation: true, password_length: 32, require_each_included_type: true))
+        .and_return(double('random_password', random_password: 'generated-password'))
+      expect(awssm_client).to receive(:create_secret).and_return(double('create_response'))
+
+      result = described_class.lookup(
+        cache: cache,
+        id: secret_id,
+        region: region,
+        create_options: { 'exclude_punctuation' => true }
+      )
+
+      expect(result.unwrap).to eq('generated-password')
     end
   end
 end

@@ -13,8 +13,27 @@ module PuppetX
     module AWSSM
       # First module for AWSSM, to lookup a given key (and optionally version)
       class Lookup
+        DEFAULT_CREATE_OPTIONS = {
+          'create_missing' => true,
+          'password_length' => 32,
+          'exclude_characters' => '\'";\\{}@',
+          'exclude_numbers' => false,
+          'exclude_punctuation' => false,
+          'exclude_uppercase' => false,
+          'exclude_lowercase' => false,
+          'include_space' => false,
+          'require_each_included_type' => true,
+          'description' => 'Created by Puppet'
+        }.freeze
+
+        # Partial create_options hashes (and nil values) fall back to the defaults
+        def self.merge_create_options(options)
+          DEFAULT_CREATE_OPTIONS.merge((options || {}).compact)
+        end
+
         def self.lookup(cache:, id:, region: 'us-east-2', version: nil, ignore_cache: false, create_options: {})
           Puppet.debug '[AWSSM]: Lookup function started'
+          create_options = merge_create_options(create_options)
           cache_key = [id, version, region]
           cache_hash = cache.retrieve(self)
           cached_result = cache_hash[cache_key] unless ignore_cache
@@ -36,6 +55,7 @@ module PuppetX
 
         def self.create_secret(id:, region:, options: {})
           Puppet.debug '[AWSSM]: create_secret function started'
+          options = merge_create_options(options)
           secret = nil
           response = nil
           awssm = Aws::SecretsManager::Client.new({
@@ -43,17 +63,17 @@ module PuppetX
                                                   })
           begin
             secret = awssm.get_random_password({
-                                                 password_length: options['password_length'] || 32,
-                                                 exclude_characters: options['exclude_characters'] || '\'";\\{}@',
-                                                 exclude_numbers: options['exclude_numbers'] || false,
-                                                 exclude_punctuation: options['exclude_punctuation'] || false,
-                                                 exclude_uppercase: options['exclude_uppercase'] || false,
-                                                 exclude_lowercase: options['exclude_lowercase'] || false,
-                                                 include_space: options['include_space'] || false,
-                                                 require_each_included_type: options['require_each_included_type'] || true,
+                                                 password_length: options['password_length'],
+                                                 exclude_characters: options['exclude_characters'],
+                                                 exclude_numbers: options['exclude_numbers'],
+                                                 exclude_punctuation: options['exclude_punctuation'],
+                                                 exclude_uppercase: options['exclude_uppercase'],
+                                                 exclude_lowercase: options['exclude_lowercase'],
+                                                 include_space: options['include_space'],
+                                                 require_each_included_type: options['require_each_included_type'],
                                                }).random_password
             response = awssm.create_secret({
-                                             description: options['description'] || 'Created by Puppet',
+                                             description: options['description'],
                                              name:        options['name'] || id,
                                              secret_string: secret,
                                            })
